@@ -23,6 +23,10 @@
   box-sizing: border-box;
 }
 
+html {
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
   min-width: 320px;
@@ -44,7 +48,8 @@ a {
   width: min(100%, 1520px);
   min-height: 100vh;
   margin: 0 auto;
-  padding: clamp(1rem, 2.6vw, 2.5rem);
+  padding: clamp(1rem, 2.4vw, 2.25rem);
+  overflow: hidden;
 }
 
 .manual-header {
@@ -59,7 +64,7 @@ a {
 .wordmark {
   color: var(--blue);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: clamp(2.75rem, 6.5vw, 6rem);
+  font-size: clamp(2.75rem, 6vw, 5.35rem);
   font-weight: 800;
   line-height: 0.86;
   letter-spacing: 0;
@@ -80,11 +85,12 @@ a {
 
 .hero-grid {
   display: grid;
-  grid-template-columns: minmax(20rem, 0.74fr) minmax(32rem, 1.26fr);
-  gap: clamp(1.5rem, 4vw, 5rem);
+  grid-template-columns: minmax(20rem, 0.68fr) minmax(34rem, 1.32fr);
+  gap: clamp(1.5rem, 3.4vw, 4.5rem);
   align-items: stretch;
   min-height: min(76vh, 820px);
   padding-top: clamp(1.5rem, 3vw, 3.5rem);
+  min-width: 0;
 }
 
 .copy-panel {
@@ -92,7 +98,8 @@ a {
   flex-direction: column;
   justify-content: space-between;
   gap: 2rem;
-  max-width: 35rem;
+  max-width: 34rem;
+  min-width: 0;
 }
 
 .kicker {
@@ -104,17 +111,17 @@ a {
 }
 
 h1 {
-  max-width: 11ch;
+  max-width: 10.5ch;
   margin: 0;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(3.1rem, 6vw, 6.35rem);
+  font-size: clamp(3rem, 5.55vw, 5.85rem);
   font-weight: 500;
   letter-spacing: 0;
   line-height: 0.92;
 }
 
 .lede {
-  max-width: 36rem;
+  max-width: 33rem;
   margin: 1.3rem 0 0;
   color: var(--muted);
   font-family: Georgia, "Times New Roman", serif;
@@ -123,7 +130,7 @@ h1 {
 }
 
 .selected-readout {
-  width: min(100%, 29rem);
+  width: min(100%, 28rem);
   border: 1px solid var(--ink);
   background: rgba(251, 251, 247, 0.9);
   padding: 1rem;
@@ -169,6 +176,8 @@ h1 {
 
 .diagram-stage {
   position: relative;
+  width: 100%;
+  min-width: 0;
   min-height: min(74vw, 760px);
   border-left: 1px solid var(--rule);
   border-right: 1px solid var(--rule);
@@ -523,7 +532,8 @@ h1 {
   }
 
   h1 {
-    max-width: 14ch;
+    max-width: 13ch;
+    font-size: clamp(3.2rem, 9vw, 5.8rem);
   }
 
   .diagram-stage {
@@ -541,39 +551,121 @@ h1 {
 }
 
 @media (max-width: 640px) {
+  body {
+    background-size: 32px 32px;
+  }
+
+  .site-shell {
+    padding: 1rem;
+  }
+
   .manual-header {
     display: grid;
+    gap: 0.6rem;
   }
 
   .header-meta {
     justify-items: start;
+    gap: 0.15rem;
+    font-size: 0.95rem;
     text-align: left;
   }
 
+  .hero-grid {
+    gap: 1.25rem;
+    min-height: 0;
+    padding-top: 1.35rem;
+  }
+
+  .copy-panel {
+    gap: 1.4rem;
+    width: 100%;
+    max-width: calc(100vw - 2rem);
+  }
+
+  .kicker {
+    margin-bottom: 0.9rem;
+    font-size: 0.72rem;
+  }
+
   h1 {
-    font-size: clamp(2.7rem, 14vw, 4.6rem);
+    max-width: min(100%, 7.9ch);
+    font-size: clamp(2.85rem, 10.8vw, 3.7rem);
+    line-height: 0.95;
+    overflow-wrap: normal;
+  }
+
+  .lede {
+    max-width: min(100%, 34ch);
+    margin-top: 1rem;
+    font-size: 1rem;
+    line-height: 1.45;
+    overflow-wrap: normal;
+  }
+
+  .selected-readout {
+    max-width: calc(100vw - 2rem);
+    width: min(100%, 21rem);
+    padding: 0.9rem;
+    box-shadow: 5px 5px 0 var(--blue);
+    overflow: hidden;
+  }
+
+  .selected-readout p {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
+  .selected-topline {
+    flex-wrap: wrap;
+    font-size: 0.68rem;
   }
 
   .diagram-stage {
-    min-height: 570px;
-    margin-inline: -1rem;
+    width: 100%;
+    max-width: 100%;
+    min-height: 530px;
+    margin-inline: 0;
     border-left: 0;
     border-right: 0;
   }
 
   .module-stack {
-    width: 82vw;
-    height: 82vw;
+    top: 47%;
+    width: min(78vw, 320px);
+    height: min(78vw, 320px);
   }
 
   .diagram-callout {
-    min-width: 7.2rem;
-    font-size: 0.64rem;
-    left: clamp(15%, var(--x), 85%);
-    top: clamp(13%, var(--y), 84%);
+    min-width: 6.2rem;
+    padding: 0.28rem 0.34rem;
+    font-size: 0.58rem;
+    left: clamp(18%, var(--x), 82%);
+    top: clamp(14%, var(--y), 82%);
+  }
+
+  .figure-label {
+    font-size: 0.62rem;
+  }
+
+  .figure-label.left {
+    left: 0.25rem;
+  }
+
+  .figure-label.right {
+    right: 0.25rem;
   }
 
   .part-index {
     grid-template-columns: 1fr;
+    margin-top: 1rem;
+  }
+
+  .part-link {
+    grid-template-columns: 4.25rem 1.1rem minmax(0, 1fr) 1rem;
+    min-height: 3.25rem;
+    padding: 0 0.7rem;
+    font-size: 0.88rem;
   }
 }
