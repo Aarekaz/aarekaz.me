@@ -8,61 +8,95 @@ import {
   Mail,
   Newspaper,
   Radio,
+  MapPin,
   Sparkles,
 } from "lucide-react"
 import type { ReactNode } from "react"
-import type { DashboardLink, HealthMetric } from "./data"
+import type { DashboardLink } from "./data"
 import { useDashboardData } from "./hooks/useDashboardData"
 
-function ExternalArrow() {
-  return <ArrowUpRight size={16} strokeWidth={1.8} aria-hidden="true" />
-}
-
-function LinkCard({
-  link,
-  className = "",
+function Tile({
+  href,
+  className,
   icon,
+  label,
+  title,
+  children,
 }: {
-  link: DashboardLink
-  className?: string
+  href?: string
+  className: string
   icon?: ReactNode
+  label?: string
+  title?: string
+  children?: ReactNode
 }) {
+  const content = (
+    <>
+      {(icon || label || href) ? (
+        <div className="tile-topline">
+          {icon}
+          {label ? <span>{label}</span> : null}
+          {href ? <ArrowUpRight size={15} strokeWidth={2.1} aria-hidden="true" /> : null}
+        </div>
+      ) : null}
+      {title ? <h2>{title}</h2> : null}
+      {children}
+    </>
+  )
+
+  if (href) {
+    return (
+      <a className={`tile ${className}`} href={href}>
+        {content}
+      </a>
+    )
+  }
+
   return (
-    <a className={`card link-card ${className}`} href={link.href}>
-      <div className="card-topline">
-        {icon}
-        <span>{link.accent ?? "Open"}</span>
-        <ExternalArrow />
-      </div>
-      <h3>{link.title}</h3>
-      <p>{link.description}</p>
-    </a>
+    <article className={`tile ${className}`}>
+      {content}
+    </article>
   )
 }
 
-function Metric({ metric }: { metric: HealthMetric }) {
+function SocialTile({
+  link,
+  icon,
+  tone,
+}: {
+  link: DashboardLink
+  icon: ReactNode
+  tone: string
+}) {
   return (
-    <div className="metric">
-      <span>{metric.label}</span>
-      <strong>{metric.value}</strong>
-      {metric.detail ? <small>{metric.detail}</small> : null}
-    </div>
+    <Tile href={link.href} className={`social-tile ${tone}`} icon={icon}>
+      <strong>{link.title}</strong>
+      <span>{link.description}</span>
+    </Tile>
   )
 }
 
 export function App() {
   const { data, status } = useDashboardData()
   const [primaryProject, ...secondaryProjects] = data.featured
+  const gitHubLink = data.links.find((link) => link.title === "GitHub")
+  const emailLink = data.links.find((link) => link.title === "Email")
+  const agentsLink = data.links.find((link) => link.title === "For agents")
+  const fullSiteLink = data.links.find((link) => link.title === "Full site")
+  const [steps, sleep, workout] = data.health.metrics
 
   return (
-    <main className="page-shell">
-      <section className="hero-card card">
-        <div className="hero-copy">
-          <p className="eyebrow">@{data.profile.handle}</p>
+    <main className="bento-page">
+      <header className="profile-header">
+        <a className="avatar" href={data.profile.fullSite} aria-label={`${data.profile.name} full site`}>
+          <span>A</span>
+        </a>
+        <div>
           <h1>{data.profile.name}</h1>
+          <p className="handle">@{data.profile.handle}</p>
           <p>{data.profile.headline}</p>
         </div>
-        <div className="hero-actions" aria-label="Primary links">
+        <nav className="profile-actions" aria-label="Primary links">
           <a href={`mailto:${data.profile.email}`}>
             <Mail size={16} />
             Email
@@ -75,71 +109,96 @@ export function App() {
             <Github size={16} />
             GitHub
           </a>
-        </div>
-      </section>
+        </nav>
+      </header>
 
-      <section className="bento-grid" aria-label="Aarekaz dashboard">
-        <article className="card now-card">
-          <div className="card-topline">
-            <Radio size={16} />
-            <span>Now</span>
-          </div>
-          <h2>{data.now.status}</h2>
-          <p>{data.now.focus}</p>
-          <small>{data.now.updated}</small>
-        </article>
-
-        <article className="card health-card">
-          <div className="card-topline">
-            <HeartPulse size={16} />
-            <span>Apple Health</span>
-            <em>{data.health.status === "live" ? "live" : "sync ready"}</em>
-          </div>
-          <div className="health-metrics">
-            {data.health.metrics.map((metric) => (
-              <Metric metric={metric} key={metric.label} />
-            ))}
-          </div>
-          <small>{data.health.updated}</small>
-        </article>
-
+      <section className="tiles" aria-label="Aarekaz Bento links">
         {primaryProject ? (
-          <LinkCard
-            link={primaryProject}
-            className="feature-card"
-            icon={<Code2 size={16} />}
-          />
+          <Tile
+            href={primaryProject.href}
+            className="project-tile tile-large lavender"
+            icon={<Code2 size={17} />}
+            label={primaryProject.accent}
+            title={primaryProject.title}
+          >
+            <p>{primaryProject.description}</p>
+            <div className="code-preview" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+              <span />
+            </div>
+          </Tile>
         ) : null}
 
-        <LinkCard
-          link={data.writing}
-          className="writing-card"
+        <Tile
+          className="health-tile tile-tall mint"
+          icon={<HeartPulse size={17} />}
+          label="Apple Health"
+          title={steps?.value ?? "sync"}
+        >
+          <p>{steps?.label ?? "Steps"}</p>
+          <div className="health-rings" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </div>
+          <div className="mini-metrics">
+            <span>{sleep?.label ?? "Sleep"}: {sleep?.value ?? "sync"}</span>
+            <span>{workout?.label ?? "Workout"}: {workout?.value ?? "sync"}</span>
+          </div>
+        </Tile>
+
+        <Tile className="now-tile peach" icon={<Radio size={17} />} label="Now" title={data.now.status}>
+          <p>{data.now.focus}</p>
+        </Tile>
+
+        <Tile
+          href={data.writing.href}
+          className="writing-tile tile-wide paper"
           icon={<Newspaper size={16} />}
-        />
+          label={data.writing.accent}
+          title={data.writing.title}
+        >
+          <p>{data.writing.description}</p>
+        </Tile>
+
+        {gitHubLink ? <SocialTile link={gitHubLink} icon={<Github size={20} />} tone="ink" /> : null}
+        {emailLink ? <SocialTile link={emailLink} icon={<Mail size={20} />} tone="butter" /> : null}
+        {agentsLink ? <SocialTile link={agentsLink} icon={<Bot size={20} />} tone="blue" /> : null}
 
         {secondaryProjects.map((project) => (
-          <LinkCard
-            link={project}
+          <Tile
+            href={project.href}
             key={project.title}
+            className="project-small"
             icon={<Activity size={16} />}
-          />
+            label={project.accent}
+            title={project.title}
+          >
+            <p>{project.description}</p>
+          </Tile>
         ))}
 
-        {data.links.map((link) => {
-          const icon =
-            link.title === "For agents" ? <Bot size={16} /> :
-            link.title === "GitHub" ? <Github size={16} /> :
-            link.title === "Email" ? <Mail size={16} /> :
-            <Sparkles size={16} />
+        <Tile
+          href={fullSiteLink?.href}
+          className="site-tile tile-wide sky"
+          icon={<Sparkles size={17} />}
+          label="anuragd.me"
+          title="The full archive"
+        >
+          <p>{fullSiteLink?.description}</p>
+          <div className="page-stack" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </div>
+        </Tile>
 
-          return <LinkCard link={link} key={link.title} icon={icon} />
-        })}
+        <Tile className="location-tile" icon={<MapPin size={17} />} label="Location" title={data.profile.location}>
+          <p>{status === "ready" ? "Dynamic feed loaded" : data.health.updated}</p>
+        </Tile>
       </section>
-
-      <footer className="footer-line">
-        <span>{data.profile.location}</span>
-        <span>{status === "ready" ? "dynamic feed loaded" : "fallback feed"}</span>
-      </footer>
     </main>
   )
 }
