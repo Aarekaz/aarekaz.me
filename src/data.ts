@@ -96,7 +96,7 @@ export const moduleParts: ModulePart[] = [
     label: "write port",
     title: "Contact",
     description: "For useful notes, roles, collaborations, and strange good ideas.",
-    href: "mailto:hello@anuragd.me",
+    href: "mailto:hey@anuragd.me",
     icon: Mail,
     figure: "FIG-008",
     x: 14,
