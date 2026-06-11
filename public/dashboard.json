@@ -1,0 +1,72 @@
+{
+  "profile": {
+    "name": "Anurag Dhungana",
+    "handle": "aarekaz",
+    "headline": "Agent infrastructure, applied AI systems, and personal software.",
+    "location": "Washington, DC",
+    "email": "hey@anuragd.me",
+    "fullSite": "https://www.anuragd.me"
+  },
+  "now": {
+    "status": "Building",
+    "focus": "Agent infrastructure, memory, evaluation systems, and a personal API-backed internet.",
+    "updated": "Public site updates from anuragd.me"
+  },
+  "health": {
+    "status": "sync-ready",
+    "updated": "Waiting for a public health summary feed",
+    "metrics": [
+      { "label": "Steps", "value": "sync", "detail": "Apple Health" },
+      { "label": "Sleep", "value": "sync", "detail": "recent average" },
+      { "label": "Workout", "value": "sync", "detail": "latest session" }
+    ]
+  },
+  "featured": [
+    {
+      "title": "Shrimp",
+      "description": "Open source agent harness for memory, tools, sub-agents, browser control, and app integrations.",
+      "href": "https://github.com/Aarekaz/shrimp",
+      "accent": "Agent harness"
+    },
+    {
+      "title": "Metro MCP",
+      "description": "Real-time transit MCP server for DC Metro and NYC Subway on Cloudflare Workers.",
+      "href": "https://www.anuragd.me/projects",
+      "accent": "2K+ daily users"
+    },
+    {
+      "title": "Personal API",
+      "description": "Cloudflare Workers, D1, and R2 as the data layer behind the public site and private OS.",
+      "href": "https://github.com/Aarekaz/api",
+      "accent": "API-backed"
+    }
+  ],
+  "writing": {
+    "title": "Agent harnesses, explained",
+    "description": "The body around the model: tools, memory, approvals, logs, adapters, and stop conditions.",
+    "href": "https://www.anuragd.me/blog/agent-harnesses-explained",
+    "accent": "Latest writing"
+  },
+  "links": [
+    {
+      "title": "Full site",
+      "description": "Portfolio, projects, blog, photography, resume, shelf, and now page.",
+      "href": "https://www.anuragd.me"
+    },
+    {
+      "title": "GitHub",
+      "description": "Code, experiments, public projects, and agent tooling.",
+      "href": "https://github.com/Aarekaz"
+    },
+    {
+      "title": "For agents",
+      "description": "Machine-readable index of pages, projects, posts, and markdown twins.",
+      "href": "https://www.anuragd.me/llms.txt"
+    },
+    {
+      "title": "Email",
+      "description": "Useful notes, roles, collaborations, and strange good ideas.",
+      "href": "mailto:hey@anuragd.me"
+    }
+  ]
+}

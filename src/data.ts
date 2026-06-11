@@ -1,105 +1,112 @@
-import { Bot, BriefcaseBusiness, Code2, Database, Github, Mail, NotebookPen, Radio } from "lucide-react"
-import type { LucideIcon } from "lucide-react"
-
-export type ModulePart = {
-  id: string
-  label: string
+export type DashboardLink = {
   title: string
   description: string
   href: string
-  icon: LucideIcon
-  figure: string
-  x: number
-  y: number
+  accent?: string
 }
 
-export const moduleParts: ModulePart[] = [
-  {
-    id: "shell",
-    label: "identity shell",
-    title: "Anurag Dhungana",
-    description: "ML engineer, MSCS at GWU, builder of agent infrastructure and personal systems.",
-    href: "https://www.anuragd.me/",
-    icon: BriefcaseBusiness,
-    figure: "FIG-001",
-    x: 72,
-    y: 14,
+export type HealthMetric = {
+  label: string
+  value: string
+  detail?: string
+}
+
+export type DashboardData = {
+  profile: {
+    name: string
+    handle: string
+    headline: string
+    location: string
+    email: string
+    fullSite: string
+  }
+  now: {
+    status: string
+    focus: string
+    updated: string
+  }
+  health: {
+    status: "live" | "sync-ready"
+    updated: string
+    metrics: HealthMetric[]
+  }
+  featured: DashboardLink[]
+  writing: DashboardLink
+  links: DashboardLink[]
+}
+
+export const fallbackDashboard: DashboardData = {
+  profile: {
+    name: "Anurag Dhungana",
+    handle: "aarekaz",
+    headline: "Agent infrastructure, applied AI systems, and personal software.",
+    location: "Washington, DC",
+    email: "hey@anuragd.me",
+    fullSite: "https://www.anuragd.me",
   },
-  {
-    id: "bus",
-    label: "agent bus",
-    title: "Shrimp",
-    description: "Open source agent harness for memory, tools, sub-agents, browser control, and app integrations.",
-    href: "https://github.com/Aarekaz/shrimp",
-    icon: Code2,
-    figure: "FIG-002",
-    x: 78,
-    y: 32,
+  now: {
+    status: "Building",
+    focus: "Agent infrastructure, memory, evaluation systems, and a personal API-backed internet.",
+    updated: "Public site updates from anuragd.me",
   },
-  {
-    id: "archive",
-    label: "archive plate",
-    title: "Projects",
-    description: "A compact index of shipped work: Metro MCP, Session Base, SEAS Search, Personal API, and more.",
-    href: "https://www.anuragd.me/projects",
-    icon: Github,
-    figure: "FIG-003",
-    x: 73,
-    y: 52,
+  health: {
+    status: "sync-ready",
+    updated: "Waiting for a public health summary feed",
+    metrics: [
+      { label: "Steps", value: "sync", detail: "Apple Health" },
+      { label: "Sleep", value: "sync", detail: "recent average" },
+      { label: "Workout", value: "sync", detail: "latest session" },
+    ],
   },
-  {
-    id: "memory",
-    label: "memory plate",
-    title: "Writing",
-    description: "Notes on agent harnesses, the body around the model, building hard things, and learning in public.",
-    href: "https://www.anuragd.me/blog",
-    icon: NotebookPen,
-    figure: "FIG-004",
-    x: 14,
-    y: 54,
+  featured: [
+    {
+      title: "Shrimp",
+      description: "Open source agent harness for memory, tools, sub-agents, browser control, and app integrations.",
+      href: "https://github.com/Aarekaz/shrimp",
+      accent: "Agent harness",
+    },
+    {
+      title: "Metro MCP",
+      description: "Real-time transit MCP server for DC Metro and NYC Subway on Cloudflare Workers.",
+      href: "https://www.anuragd.me/projects",
+      accent: "2K+ daily users",
+    },
+    {
+      title: "Personal API",
+      description: "Cloudflare Workers, D1, and R2 as the data layer behind the public site and private OS.",
+      href: "https://github.com/Aarekaz/api",
+      accent: "API-backed",
+    },
+  ],
+  writing: {
+    title: "Agent harnesses, explained",
+    description: "The body around the model: tools, memory, approvals, logs, adapters, and stop conditions.",
+    href: "https://www.anuragd.me/blog/agent-harnesses-explained",
+    accent: "Latest writing",
   },
-  {
-    id: "core",
-    label: "api core",
-    title: "Personal API",
-    description: "Cloudflare Workers, D1, and R2 as the source of truth behind the public site and private OS.",
-    href: "https://github.com/Aarekaz/api",
-    icon: Database,
-    figure: "FIG-005",
-    x: 17,
-    y: 34,
-  },
-  {
-    id: "agents",
-    label: "machine context",
-    title: "llms.txt",
-    description: "A readable map for agents: pages, markdown twins, projects, writing, and current public context.",
-    href: "https://www.anuragd.me/llms.txt",
-    icon: Bot,
-    figure: "FIG-006",
-    x: 15,
-    y: 17,
-  },
-  {
-    id: "now",
-    label: "signal port",
-    title: "Now",
-    description: "Current focus, learning, projects, reading, and the active layer of the system.",
-    href: "https://www.anuragd.me/now",
-    icon: Radio,
-    figure: "FIG-007",
-    x: 82,
-    y: 72,
-  },
-  {
-    id: "contact",
-    label: "write port",
-    title: "Contact",
-    description: "For useful notes, roles, collaborations, and strange good ideas.",
-    href: "mailto:hey@anuragd.me",
-    icon: Mail,
-    figure: "FIG-008",
-    x: 14,
-    y: 76,
-  },
-]
+  links: [
+    {
+      title: "Full site",
+      description: "Portfolio, projects, blog, photography, resume, shelf, and now page.",
+      href: "https://www.anuragd.me",
+    },
+    {
+      title: "GitHub",
+      description: "Code, experiments, public projects, and agent tooling.",
+      href: "https://github.com/Aarekaz",
+    },
+    {
+      title: "For agents",
+      description: "Machine-readable index of pages, projects, posts, and markdown twins.",
+      href: "https://www.anuragd.me/llms.txt",
+    },
+    {
+      title: "Email",
+      description: "Useful notes, roles, collaborations, and strange good ideas.",
+      href: "mailto:hey@anuragd.me",
+    },
+  ],
+}
+
+export const dashboardFeedUrl =
+  import.meta.env.VITE_DASHBOARD_FEED_URL || "/dashboard.json"
