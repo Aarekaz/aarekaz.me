@@ -2,9 +2,13 @@
 
 Compact public entrypoint for Anurag's internet system.
 
-The page is a white technical-manual style diagram that links out to the full
-archive at `anuragd.me`: work, projects, writing, agent context, now, and
+The page is a Bento-style personal dashboard that links out to the full archive
+at `anuragd.me`: work, projects, writing, agent context, Apple Health, now, and
 contact.
+
+Dynamic card data is read from `public/dashboard.json` by default. For a live
+feed, set `VITE_DASHBOARD_FEED_URL` to a public JSON endpoint with the same
+shape as `src/data.ts`.
 
 ## Commands
 
