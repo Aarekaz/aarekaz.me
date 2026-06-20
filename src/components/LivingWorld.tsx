@@ -2,13 +2,18 @@
 // whole lifecycle: build the sim, size the canvas, wire pointer input, run the
 // rAF loop — and tear it all down on unmount. No useEffect. When reduced-motion
 // changes, the parent remounts this via `key`, so the callback ref re-runs.
+//
+// The creature starts from its daily seed instantly, then folds in Anurag's real
+// data the moment the baked feed resolves (see src/data/feed.ts) — so the first
+// paint is never blocked on the network, but the organism soon *means* something.
 
 import { useCallback } from "react"
 import { Physarum } from "../simulation/physarum"
 import { TrailRenderer } from "../render/trailRenderer"
-import { gridForCanvas, seededParams } from "../data/params"
-import { buildPaletteLUT, creaturePalette, timeOfDayHue } from "../lib/oklch"
+import { gridForCanvas, seededParams, mapDataToParams, type GridSpec } from "../data/params"
+import { buildPaletteLUT, creaturePalette, liveAccentHue, timeOfDayHue } from "../lib/oklch"
 import { dailySeed } from "../lib/random"
+import { loadFeed, type CreatureFeed } from "../data/feed"
 
 interface Props {
   reduced: boolean
@@ -26,22 +31,47 @@ export function LivingWorld({ reduced }: Props) {
       if (!ctx) return
 
       const seed = dailySeed()
-      const lut = buildPaletteLUT(creaturePalette(timeOfDayHue()))
 
       let sim: Physarum
       let renderer: TrailRenderer
+      let grid: GridSpec
+      let lut: Uint8ClampedArray
+      let feed: CreatureFeed | null = null // null until the baked feed resolves
+      let pulseAmt = 0 // >0 makes the glow breathe when status is "live"
+      let baseExposure = 0.08 // renderer's resting exposure; the pulse oscillates around it
+      let frame = 0
       let raf = 0
       let resizeTimer = 0
+      let cancelled = false
       let dpr = Math.min(window.devicePixelRatio || 1, 1.5)
+
+      // Recompute the palette + pulse from the current feed. Cheap (256 entries),
+      // so it's fine to call on every build and when the feed arrives.
+      const applyPalette = () => {
+        const hue = liveAccentHue(
+          timeOfDayHue(),
+          feed?.status.discord ?? null,
+          feed?.status.listening ?? false,
+        )
+        lut = buildPaletteLUT(creaturePalette(hue))
+        pulseAmt =
+          !reduced && feed && (feed.status.listening || feed.status.discord === "online") ? 0.12 : 0
+      }
 
       const build = () => {
         const rect = canvas.getBoundingClientRect()
         canvas.width = Math.max(1, Math.round(rect.width * dpr))
         canvas.height = Math.max(1, Math.round(rect.height * dpr))
-        const grid = gridForCanvas(canvas.width, canvas.height)
-        sim = new Physarum(grid.gridW, grid.gridH, seededParams(seed, grid), seed)
+        grid = gridForCanvas(canvas.width, canvas.height)
+        const base = seededParams(seed, grid)
+        const params = feed ? mapDataToParams(base, feed) : base
+        sim = new Physarum(grid.gridW, grid.gridH, params, seed)
         renderer = new TrailRenderer(grid.gridW, grid.gridH)
+        baseExposure = renderer.exposure
+        applyPalette()
       }
+
+      build()
 
       const paint = () => {
         renderer.render(sim.trail, lut)
@@ -53,18 +83,34 @@ export function LivingWorld({ reduced }: Props) {
         paint()
       }
 
-      build()
-
       if (reduced) {
         settleAndPaint()
       } else {
         const loop = () => {
           sim.step()
+          // A slow, shallow breath on the exposure — only when the feed says the
+          // creature is "live" (online or listening). Purely visual.
+          if (pulseAmt > 0) renderer.exposure = baseExposure * (1 + pulseAmt * Math.sin(frame * 0.04))
+          frame++
           paint()
           raf = requestAnimationFrame(loop)
         }
         raf = requestAnimationFrame(loop)
       }
+
+      // Feed Anurag's real data in once it loads. loadFeed never rejects, so the
+      // worst case is the committed fallback — the creature is always shaped.
+      const ac = new AbortController()
+      loadFeed(ac.signal).then((loaded) => {
+        if (cancelled) return
+        feed = loaded
+        sim.params = mapDataToParams(seededParams(seed, grid), feed)
+        applyPalette()
+        if (reduced) {
+          sim.reseed(seed) // clean, deterministic restart for the static portrait
+          settleAndPaint()
+        }
+      })
 
       const onResize = () => {
         window.clearTimeout(resizeTimer)
@@ -92,6 +138,8 @@ export function LivingWorld({ reduced }: Props) {
       canvas.addEventListener("pointerdown", onPointer)
 
       return () => {
+        cancelled = true
+        ac.abort()
         cancelAnimationFrame(raf)
         window.clearTimeout(resizeTimer)
         window.removeEventListener("resize", onResize)

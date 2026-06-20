@@ -91,6 +91,22 @@ export function timeOfDayHue(date = new Date()): number {
   return 265
 }
 
+/**
+ * Nudge the day's base hue toward a "live" accent reflecting current status, so
+ * the creature's colour reacts to what Anurag is doing right now. Music pulls
+ * magenta, online pulls teal-green, idle amber, do-not-disturb a warm red.
+ * Offline or unknown leaves the time-of-day hue untouched.
+ */
+export function liveAccentHue(baseHue: number, status: string | null, listening: boolean): number {
+  let target: number | null = null
+  if (listening) target = 330
+  else if (status === "online") target = 160
+  else if (status === "idle") target = 70
+  else if (status === "dnd") target = 25
+  if (target === null) return baseHue
+  return lerpHue(baseHue, target, 0.5)
+}
+
 /** The creature's ramp: near-black background -> deep tone -> glowing accent -> hot highlight. */
 export function creaturePalette(baseHue: number): PaletteStop[] {
   return [

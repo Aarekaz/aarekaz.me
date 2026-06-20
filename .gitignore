@@ -3,6 +3,11 @@ dist/
 qa/
 reference-shots/
 
+# Secrets — the bake step reads API_TOKEN from here; it must never be committed.
+.env
+.env.local
+.env.*.local
+
 *.tsbuildinfo
 vite.config.js
 vite.config.d.ts
