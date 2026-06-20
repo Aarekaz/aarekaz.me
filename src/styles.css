@@ -129,6 +129,87 @@ body {
   outline-offset: 3px;
 }
 
+/* Specimen vital signs — the real data, made legible, like a museum label.
+   Top-right, balancing the identity at bottom-left. */
+.vitals {
+  position: absolute;
+  top: clamp(1.5rem, 4vw, 3.25rem);
+  right: clamp(1.5rem, 4vw, 3.25rem);
+  max-width: 15rem;
+  text-align: right;
+  pointer-events: none;
+  font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+  animation: vitals-in 0.8s ease 0.15s both;
+}
+
+@keyframes vitals-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.vitals-species {
+  font-family: ui-serif, Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--ink);
+  letter-spacing: 0.01em;
+}
+
+.vitals-strain {
+  margin-top: 0.15rem;
+  margin-bottom: 0.85rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.vitals-list {
+  display: grid;
+  gap: 0.32rem;
+}
+
+.vitals-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.7rem;
+  padding-top: 0.32rem;
+  font-size: 0.7rem;
+  border-top: 1px dashed var(--line);
+}
+
+.vitals-row dt {
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+
+.vitals-row dd {
+  color: var(--ink-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.vitals-foot {
+  margin-top: 0.85rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* On small screens the organism + identity carry it; the label would crowd. */
+@media (max-width: 540px) {
+  .vitals {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .links a {
     transition: none;
