@@ -13,7 +13,7 @@ import { TrailRenderer } from "../render/trailRenderer"
 import { gridForCanvas, seededParams, mapDataToParams, type GridSpec } from "../data/params"
 import { buildPaletteLUT, creaturePalette, liveAccentHue, timeOfDayHue } from "../lib/oklch"
 import { dailySeed } from "../lib/random"
-import { loadFeed, type CreatureFeed } from "../data/feed"
+import { getFeed, type CreatureFeed } from "../data/feed"
 
 interface Props {
   reduced: boolean
@@ -98,10 +98,9 @@ export function LivingWorld({ reduced }: Props) {
         raf = requestAnimationFrame(loop)
       }
 
-      // Feed Anurag's real data in once it loads. loadFeed never rejects, so the
+      // Feed Anurag's real data in once it loads. getFeed never rejects, so the
       // worst case is the committed fallback — the creature is always shaped.
-      const ac = new AbortController()
-      loadFeed(ac.signal).then((loaded) => {
+      getFeed().then((loaded) => {
         if (cancelled) return
         feed = loaded
         sim.params = mapDataToParams(seededParams(seed, grid), feed)
@@ -139,7 +138,6 @@ export function LivingWorld({ reduced }: Props) {
 
       return () => {
         cancelled = true
-        ac.abort()
         cancelAnimationFrame(raf)
         window.clearTimeout(resizeTimer)
         window.removeEventListener("resize", onResize)
