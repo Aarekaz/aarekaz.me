@@ -210,6 +210,65 @@ body {
   }
 }
 
+/* The creature's birth: a brief incubation count-up, then it reveals the world. */
+.birth {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #05060a;
+  transition: opacity 0.7s ease;
+}
+
+.birth.done {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.birth-inner {
+  width: min(78vw, 22rem);
+  text-align: center;
+}
+
+.birth-species {
+  font-family: ui-serif, Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: 1.2rem;
+  color: var(--ink);
+}
+
+.birth-state {
+  margin-top: 0.3rem;
+  font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.birth-bar {
+  margin: 1.1rem 0 0.5rem;
+  height: 1px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.birth-bar > i {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--ink);
+}
+
+.birth-count {
+  font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+  font-size: 0.7rem;
+  color: var(--ink-dim);
+  font-variant-numeric: tabular-nums;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .links a {
     transition: none;

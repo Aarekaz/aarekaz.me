@@ -2,6 +2,7 @@ import { Suspense } from "react"
 import { LivingWorld } from "./components/LivingWorld"
 import { Overlay } from "./components/Overlay"
 import { Vitals } from "./components/Vitals"
+import { Birth } from "./components/Birth"
 import { useReducedMotion } from "./hooks/useReducedMotion"
 
 export function App() {
@@ -18,6 +19,8 @@ export function App() {
       <Suspense fallback={null}>
         <Vitals />
       </Suspense>
+      {/* The birth intro is an animation; reduced-motion visitors skip it. */}
+      {!reduced && <Birth />}
     </main>
   )
 }
