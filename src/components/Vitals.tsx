@@ -9,6 +9,7 @@
 
 import { use } from "react"
 import { getFeed } from "../data/feed"
+import { getCrowd } from "../data/crowd"
 import { dailySeed } from "../lib/random"
 
 const fmt = new Intl.NumberFormat("en-US")
@@ -29,6 +30,9 @@ function statusLabel(discord: string | null, listening: boolean): string {
 
 export function Vitals() {
   const feed = use(getFeed())
+  // The crowd shares the same Suspense boundary; null until/unless the public
+  // endpoint is live (see src/data/crowd.ts), in which case the row is omitted.
+  const crowd = use(getCrowd())
   const strain = String(dailySeed() % 1000).padStart(3, "0")
   const hours = Math.round(feed.wakatime.seconds30d / 3600)
 
@@ -40,6 +44,11 @@ export function Vitals() {
     ["motion", feed.health.avgSteps == null ? "—" : `${fmt.format(feed.health.avgSteps)} steps`],
     ["status", statusLabel(feed.status.discord, feed.status.listening)],
   ]
+
+  // The crowd tending the specimen: who's here now, and how many ever have been.
+  if (crowd && crowd.total > 0) {
+    rows.push(["tended", `${fmt.format(crowd.tending)} now · ${fmt.format(crowd.total)} all`])
+  }
 
   return (
     <aside className="vitals" aria-label="Specimen vital signs">
