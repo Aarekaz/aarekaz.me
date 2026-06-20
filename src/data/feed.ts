@@ -63,3 +63,11 @@ export async function loadFeed(signal?: AbortSignal): Promise<CreatureFeed> {
     return FALLBACK_FEED
   }
 }
+
+// One shared fetch for the whole app: the canvas reads it imperatively
+// (getFeed().then), the vitals read it via React 19's use() under Suspense.
+// Same promise both ways, so the network is hit exactly once.
+let _feed: Promise<CreatureFeed> | null = null
+export function getFeed(): Promise<CreatureFeed> {
+  return (_feed ??= loadFeed())
+}
