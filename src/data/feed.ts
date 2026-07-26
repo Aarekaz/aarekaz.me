@@ -1,38 +1,34 @@
-// The creature's food. A tiny, sanitized snapshot of Anurag's real life, baked
-// at build time into public/creature-feed.json (see scripts/bake-feed.mjs). The
-// browser only ever sees these scalars — never the API token.
-//
-// loadFeed() reads the static file by default. Point VITE_CREATURE_FEED_URL at a
-// live CORS endpoint (e.g. a future Cloudflare Worker) to swap to real-time data
-// without touching anything else — the one-line upgrade path.
+// A tiny, sanitized snapshot of Anurag's real activity, baked at build time
+// into public/live-feed.json (see scripts/bake-feed.mjs). The browser only sees
+// these scalars, never the API token.
 
-export interface CreatureFeed {
+export interface SiteFeed {
+  generatedAt: string | null
   github: { commits30d: number; activeDays30d: number; repos: number }
   wakatime: { seconds30d: number; languages: number }
   health: { avgSteps: number | null; workouts: number }
   status: { discord: string | null; listening: boolean }
 }
 
-// A believable resting creature. Used before the fetch resolves and whenever the
-// feed is missing or malformed, so the site is never empty or unshaped.
-export const FALLBACK_FEED: CreatureFeed = {
+export const FALLBACK_FEED: SiteFeed = {
+  generatedAt: null,
   github: { commits30d: 120, activeDays30d: 18, repos: 6 },
   wakatime: { seconds30d: 180000, languages: 4 },
   health: { avgSteps: 7000, workouts: 3 },
   status: { discord: "online", listening: false },
 }
 
-const FEED_URL = import.meta.env.VITE_CREATURE_FEED_URL ?? "/creature-feed.json"
+const FEED_URL =
+  import.meta.env.VITE_LIVE_FEED_URL ?? "/live-feed.json"
 
 const num = (v: unknown, fallback: number): number =>
   typeof v === "number" && Number.isFinite(v) ? v : fallback
 
-/** Coerce arbitrary JSON into a complete CreatureFeed, section by section, so a
- *  partial or stale file can never produce NaN params downstream. */
-function coerce(raw: unknown): CreatureFeed {
+function coerce(raw: unknown): SiteFeed {
   const r = (raw ?? {}) as Record<string, any>
   const f = FALLBACK_FEED
   return {
+    generatedAt: typeof r.generatedAt === "string" ? r.generatedAt : null,
     github: {
       commits30d: num(r.github?.commits30d, f.github.commits30d),
       activeDays30d: num(r.github?.activeDays30d, f.github.activeDays30d),
@@ -53,8 +49,7 @@ function coerce(raw: unknown): CreatureFeed {
   }
 }
 
-/** Fetch the baked feed. Never rejects — any failure resolves to FALLBACK_FEED. */
-export async function loadFeed(signal?: AbortSignal): Promise<CreatureFeed> {
+export async function loadFeed(signal?: AbortSignal): Promise<SiteFeed> {
   try {
     const res = await fetch(FEED_URL, { signal })
     if (!res.ok) throw new Error(String(res.status))
@@ -64,10 +59,7 @@ export async function loadFeed(signal?: AbortSignal): Promise<CreatureFeed> {
   }
 }
 
-// One shared fetch for the whole app: the canvas reads it imperatively
-// (getFeed().then), the vitals read it via React 19's use() under Suspense.
-// Same promise both ways, so the network is hit exactly once.
-let _feed: Promise<CreatureFeed> | null = null
-export function getFeed(): Promise<CreatureFeed> {
-  return (_feed ??= loadFeed())
+let feedPromise: Promise<SiteFeed> | null = null
+export function getFeed(): Promise<SiteFeed> {
+  return (feedPromise ??= loadFeed())
 }
