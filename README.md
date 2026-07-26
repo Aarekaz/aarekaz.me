@@ -2,13 +2,14 @@
 
 Compact public entrypoint for Anurag's internet system.
 
-The page is a Bento-style personal dashboard that links out to the full archive
-at `anuragd.me`: work, projects, writing, agent context, Apple Health, now, and
-contact.
+The page is a minimal live index: identity, links, Apple Health-sized signals,
+coding activity, presence, and experiments. It links out to the full archive at
+`anuragd.me`.
 
-Dynamic card data is read from `public/dashboard.json` by default. For a live
-feed, set `VITE_DASHBOARD_FEED_URL` to a public JSON endpoint with the same
-shape as `src/data.ts`.
+Dynamic data is read from `public/live-feed.json` by default. For a live public
+feed, set `VITE_LIVE_FEED_URL` to a JSON endpoint with the same shape as
+`src/data/feed.ts`. Optional crowd presence can be enabled with
+`VITE_CROWD_URL`.
 
 ## Commands
 
@@ -17,6 +18,15 @@ npm install
 npm run dev
 npm run build
 ```
+
+## Data Bake
+
+```sh
+API_TOKEN=... npm run bake
+```
+
+The bake script reads `api.anuragd.me`, writes `public/live-feed.json`, and
+keeps an existing feed if the token is missing during a build.
 
 ## Deploy
 

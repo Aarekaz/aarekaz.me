@@ -1,27 +1,24 @@
-// Build-time data bake. Runs on the build machine (laptop or CI) where the
-// secret API_TOKEN lives — NEVER in the browser. It fetches the authed API,
-// distills it down to a handful of harmless scalars, and writes
-// public/creature-feed.json. The shipped site only ever sees those numbers.
+// Build-time data bake. Runs on the build machine, where API_TOKEN can exist.
+// It fetches the authed API, distills it down to harmless public scalars, and
+// writes public/live-feed.json. The browser never sees the token.
 //
 //   API_TOKEN=... npm run bake
 //
-// Robust by design: a slow or failing endpoint degrades to that section's
-// fallback rather than breaking the build. If the whole API is unreachable and
-// a previous feed exists, that feed is kept untouched.
+// A slow or failing endpoint degrades to that section's fallback rather than
+// breaking the build. If the whole API is unreachable and a previous feed
+// exists, that feed is kept untouched.
 
 import { writeFile, readFile, mkdir } from "node:fs/promises"
 import { dirname, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..")
-const OUT = resolve(ROOT, "public/creature-feed.json")
+const OUT = resolve(ROOT, "public/live-feed.json")
 
 const API_BASE = process.env.API_BASE ?? "https://api.anuragd.me"
 const API_TOKEN = process.env.API_TOKEN ?? ""
 const TIMEOUT_MS = 8000
 
-// Mirrors src/data/feed.ts FALLBACK_FEED — a believable resting creature so the
-// site is shaped and alive even with no network at build time.
 const FALLBACK = {
   github: { commits30d: 120, activeDays30d: 18, repos: 6 },
   wakatime: { seconds30d: 180000, languages: 4 },
@@ -44,14 +41,13 @@ async function get(path) {
   }
 }
 
-// Each reducer is wrapped so one bad endpoint can't sink the others.
 async function safe(label, fn, fallback) {
   try {
     const value = await fn()
-    console.log(`  ✓ ${label}`)
+    console.log(`  ok ${label}`)
     return value
   } catch (err) {
-    console.warn(`  ⚠ ${label} failed (${err.message}) — using fallback`)
+    console.warn(`  warn ${label} failed (${err.message}); using fallback`)
     return fallback
   }
 }
@@ -97,16 +93,15 @@ async function bakeStatus() {
 
 async function main() {
   if (!API_TOKEN) {
-    // No token: don't clobber a previously-baked real feed with fallback.
     try {
       await readFile(OUT)
-      console.warn("⚠ API_TOKEN not set — keeping existing feed (no live fetch).")
+      console.warn("warn API_TOKEN not set; keeping existing live feed")
       return
     } catch {
-      console.warn("⚠ API_TOKEN not set and no feed present — writing fallback.")
+      console.warn("warn API_TOKEN not set and no feed present; writing fallback")
     }
   }
-  console.log(`Baking creature feed from ${API_BASE} …`)
+  console.log(`Baking live feed from ${API_BASE}`)
 
   const feed = {
     generatedAt: new Date().toISOString(),
@@ -118,17 +113,16 @@ async function main() {
 
   await mkdir(dirname(OUT), { recursive: true })
   await writeFile(OUT, JSON.stringify(feed, null, 2) + "\n")
-  console.log(`✓ Wrote ${OUT}`)
+  console.log(`ok wrote ${OUT}`)
 }
 
 main().catch(async (err) => {
-  // Total failure: keep any existing feed so a deploy never ships an empty one.
   try {
     await readFile(OUT)
-    console.warn(`⚠ Bake failed (${err.message}) — keeping existing feed.`)
+    console.warn(`warn bake failed (${err.message}); keeping existing feed`)
     process.exit(0)
   } catch {
-    console.error(`✖ Bake failed and no existing feed: ${err.message}`)
+    console.error(`error bake failed and no existing feed: ${err.message}`)
     process.exit(1)
   }
 })
